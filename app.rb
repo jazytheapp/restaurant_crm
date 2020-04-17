@@ -8,7 +8,9 @@ if ENV['APP_ENV'] != 'test'
 end
 
 require './models/restaurant'
+require './models/table'
 
 require './controllers/base'
 require './controllers/index_controller'
 require './controllers/restaurant_controller'
+require './controllers/table_controller'

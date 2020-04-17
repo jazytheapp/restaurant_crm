@@ -12,6 +12,7 @@ RSpec.configure do |config|
   config.before(:each) do
     tables = [
       'restaurants',
+      'tables',
     ]
     tables.each do |table_name|
       ActiveRecord::Base.connection.execute("Delete from #{table_name}")
