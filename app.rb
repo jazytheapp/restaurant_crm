@@ -3,9 +3,7 @@ require 'sinatra/activerecord'
 require 'active_support/core_ext/hash'
 require 'json'
 
-if ENV['APP_ENV'] != 'test'
-  require 'sinatra/reloader'
-end
+require 'sinatra/reloader' if development?
 
 require './models/restaurant'
 require './models/table'
