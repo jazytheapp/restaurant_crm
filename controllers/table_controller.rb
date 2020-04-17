@@ -48,7 +48,7 @@ end
 put '/api/tables/:id' do
   request.body.rewind
   json_body = JSON.parse(request.body.read)
-  json_body.slice!(*Table::WHITE_FIELDS)
+  json_body.slice!('description')
   begin
     record = Table.find(params[:id])
     record.update(json_body)
