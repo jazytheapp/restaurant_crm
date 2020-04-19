@@ -1,6 +1,6 @@
 # Restaurants CRM
 
-ruby version: *2.7.1*
+ruby version: *2.6.5*
 
 install:
 
