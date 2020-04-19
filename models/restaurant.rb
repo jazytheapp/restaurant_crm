@@ -1,11 +1,29 @@
+# frozen_string_literal: true
+
 class Restaurant < ActiveRecord::Base
-  WHITE_FIELDS = ['name', 'work_hour_start', 'work_hour_stop']
+  WHITE_FIELDS = %w[name work_hour_start work_hour_stop].freeze
   has_many :tables, dependent: :destroy
-  def to_json
-    self.as_json(only: [:id, :name])
+
+  validates :name, :work_hour_start, :work_hour_stop, presence: true
+  validate :validate_hours
+
+  def to_json(*_args)
+    as_json(only: %i[id name])
   end
-  def is_time_between_work_hours?(time_1, time_2)
-    time_1.hour.between?(self.work_hour_start, self.work_hour_stop) &&
-    time_2.hour.between?(self.work_hour_start, self.work_hour_stop)
+
+  def is_time_between_work_hours?(time)
+    time.hour.between?(work_hour_start, work_hour_stop)
+  end
+
+  private
+
+  def validate_hours
+    unless work_hour_start.nil? || work_hour_start.between?(0, 24)
+      errors.add(:work_hour_start, 'wrong time')
+    end
+
+    unless work_hour_stop.nil? || work_hour_stop.between?(0, 24)
+      errors.add(:work_hour_stop, 'wrong time')
+    end
   end
 end

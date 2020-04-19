@@ -1,75 +1,75 @@
-get '/api/users' do
-    records = User.all()
+# frozen_string_literal: true
+
+class UserController < Base
+  get '/api/users' do
+    records = User.all
+
+    users = []
+    records.each { |r| users << r.to_json }
+
+    status 200
     {
       status: 0,
       data: {
-        users: records.as_json(only: [:id, :name])
+        users: users
       }
     }.to_json
-end
+  end
 
-get '/api/users/:id' do
-  begin
+  get '/api/users/:id' do
     record = User.find(params[:id])
-  rescue ActiveRecord::RecordNotFound
-    return 404, {
-      status: 1,
-      error: ErrorText::NOT_FOUND
+
+    status 200
+    {
+      status: 0,
+      data: {
+        user: record.to_json
+      }
     }.to_json
   end
-  {
-    status: 0,
-    data: {
-      user: record.to_json()
-    }
-  }.to_json
-end
 
-post '/api/users' do
-  request.body.rewind
-  json_body = JSON.parse(request.body.read)
-  json_body.slice!(*User::WHITE_FIELDS)
-  record = User.create(json_body)
-  return 201, {
-    status: 0,
-    data: {
-      user: record.to_json()
-    }
-  }.to_json
-end
+  post '/api/users' do
+    record = User.create!(user_params)
 
-put '/api/users/:id' do
-  request.body.rewind
-  json_body = JSON.parse(request.body.read)
-  json_body.slice!(*User::WHITE_FIELDS)
-  begin
-    record = User.find(params[:id])
-    record.update(json_body)
-  rescue ActiveRecord::RecordNotFound
-    return 404, {
-      status: 1,
-      error: ErrorText::NOT_FOUND
+    status 201
+    {
+      status: 0,
+      data: {
+        user: record.to_json
+      }
     }.to_json
   end
-  return 201, {
-    status: 0,
-    data: {
-      user: record.to_json()
-    }
-  }.to_json
-end
 
-delete '/api/users/:id' do
-  begin
+  put '/api/users/:id' do
     record = User.find(params[:id])
+
+    record.update!(user_params)
+
+    status 201
+    {
+      status: 0,
+      data: {
+        user: record.to_json
+      }
+    }.to_json
+  end
+
+  delete '/api/users/:id' do
+    record = User.find(params[:id])
+
     record.destroy
-  rescue ActiveRecord::RecordNotFound
-    return 404, {
-      status: 1,
-      error: ErrorText::NOT_FOUND
+
+    status 200
+    {
+      status: 0
     }.to_json
   end
-  return 200, {
-    status: 0
-  }.to_json
+
+  private
+
+  def user_params
+    params.slice(*User::WHITE_FIELDS)
+  end
 end
+
+use UserController

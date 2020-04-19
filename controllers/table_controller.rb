@@ -1,82 +1,84 @@
-get '/api/tables' do
-    records = Table.all()
+# frozen_string_literal: true
+
+class TableController < Base
+  get '/api/tables' do
+    records = Table.all
+
+    tables = []
+    records.each { |r| tables << r.to_json }
+
+    status 200
     {
       status: 0,
       data: {
-        tables: records.as_json(only: [:id, :description])
+        tables: tables
       }
     }.to_json
-end
+  end
 
-get '/api/tables/:id' do
-  begin
+  get '/api/tables/:id' do
     record = Table.find(params[:id])
-  rescue ActiveRecord::RecordNotFound
-    return 404, {
-      status: 1,
-      error: ErrorText::NOT_FOUND
+
+    status 200
+    {
+      status: 0,
+      data: {
+        table: record.to_json
+      }
     }.to_json
   end
-  {
-    status: 0,
-    data: {
-      table: record.to_json()
-    }
-  }.to_json
-end
 
-post '/api/tables' do
-  request.body.rewind
-  json_body = JSON.parse(request.body.read)
-  json_body.slice!(*Table::WHITE_FIELDS)
-  record = Table.create(json_body)
-  if !(record.valid?)
-    return 409, {
-      status: 1,
-      error: ErrorText::INVALID
-    }.to_json
-  
-  end
-  return 201, {
-    status: 0,
-    data: {
-      table: record.to_json()
-    }
-  }.to_json
-end
+  post '/api/tables' do
+    record = Table.create!(table_params)
 
-put '/api/tables/:id' do
-  request.body.rewind
-  json_body = JSON.parse(request.body.read)
-  json_body.slice!('description')
-  begin
-    record = Table.find(params[:id])
-    record.update(json_body)
-  rescue ActiveRecord::RecordNotFound
-    return 404, {
-      status: 1,
-      error: ErrorText::NOT_FOUND
+    status 201
+    {
+      status: 0,
+      data: {
+        table: record.to_json
+      }
     }.to_json
   end
-  return 201, {
-    status: 0,
-    data: {
-      table: record.to_json()
-    }
-  }.to_json
-end
 
-delete '/api/tables/:id' do
-  begin
+  put '/api/tables/:id' do
     record = Table.find(params[:id])
+
+    record.description = description
+
+    record.save!
+
+    status 201
+    {
+      status: 0,
+      data: {
+        table: record.to_json
+      }
+    }.to_json
+  end
+
+  delete '/api/tables/:id' do
+    record = Table.find(params[:id])
+
     record.destroy
-  rescue ActiveRecord::RecordNotFound
-    return 404, {
-      status: 1,
-      error: ErrorText::NOT_FOUND
+
+    status 200
+    {
+      status: 0
     }.to_json
   end
-  return 200, {
-    status: 0
-  }.to_json
+
+  private
+
+  def table_params
+    params.slice(*Table::WHITE_FIELDS)
+  end
+
+  def description
+    r = table_params['description']
+    raise ActiveRecord::RecordInvalid if r.nil?
+
+    r
+  end
 end
+
+use TableController

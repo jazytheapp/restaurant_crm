@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 ENV['APP_ENV'] = 'test'
 
 require './app'
@@ -8,7 +10,7 @@ require 'database_cleaner/active_record'
 RSpec.configure do |config|
   config.include Rack::Test::Methods
   config.before(:all) do
-    load "./db/schema.rb"
+    load './db/schema.rb'
   end
   config.before(:suite) do
     DatabaseCleaner.strategy = :transaction

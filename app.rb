@@ -1,18 +1,20 @@
+# frozen_string_literal: true
+
 require 'sinatra'
 require 'sinatra/activerecord'
 require 'active_support/core_ext/hash'
 require 'json'
 
-require 'sinatra/reloader' if development?
+require 'rack/contrib'
+require 'byebug'
 
-require './models/restaurant'
-require './models/table'
-require './models/user'
-require './models/reservation'
+require 'zeitwerk'
 
-require './controllers/base'
-require './controllers/index_controller'
-require './controllers/restaurant_controller'
-require './controllers/table_controller'
-require './controllers/user_controller'
-require './controllers/reservation_controller'
+APP_LOADER = Zeitwerk::Loader.new
+%w[
+  models
+  controllers
+].each(&APP_LOADER.method(:push_dir))
+APP_LOADER.enable_reloading
+APP_LOADER.setup
+APP_LOADER.eager_load
