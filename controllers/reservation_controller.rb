@@ -4,14 +4,11 @@ class ReservationController < Base
   get '/api/reservations' do
     records = Reservation.all
 
-    reservations = []
-    records.each { |r| reservations << r.to_json }
-
     status 200
     {
       status: 0,
       data: {
-        reservations: reservations
+        reservations: records.map(&:to_json)
       }
     }.to_json
   end

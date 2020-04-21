@@ -4,14 +4,11 @@ class UserController < Base
   get '/api/users' do
     records = User.all
 
-    users = []
-    records.each { |r| users << r.to_json }
-
     status 200
     {
       status: 0,
       data: {
-        users: users
+        users: records.map(&:to_json)
       }
     }.to_json
   end

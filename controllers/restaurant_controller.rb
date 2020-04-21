@@ -4,14 +4,11 @@ class RestaurantController < Base
   get '/api/restaurants' do
     records = Restaurant.all
 
-    restaurants = []
-    records.each { |r| restaurants << r.to_json }
-
     status 200
     {
       status: 0,
       data: {
-        restaurants: restaurants
+        restaurants: records.map(&:to_json)
       }
     }.to_json
   end

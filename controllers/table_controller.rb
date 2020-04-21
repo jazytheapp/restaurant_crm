@@ -4,14 +4,11 @@ class TableController < Base
   get '/api/tables' do
     records = Table.all
 
-    tables = []
-    records.each { |r| tables << r.to_json }
-
     status 200
     {
       status: 0,
       data: {
-        tables: tables
+        tables: records.map(&:to_json)
       }
     }.to_json
   end
